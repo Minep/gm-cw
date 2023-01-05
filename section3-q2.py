@@ -13,12 +13,18 @@ def get_neighbours(i, j, shape = (10, 10)):
 
     @return: list of indices of neighbours
     """
-    neighbours = [[i + 1, j], [i - 1, j], [i, j + 1], [i, j - 1]] # list of possible neighbours
+    edges_list = []
 
-    # remove neighbours that are out of bounds
-    neighbours = [neighbour for neighbour in neighbours if neighbour[0] >= 0 and neighbour[0] < shape[0] and neighbour[1] >= 0 and neighbour[1] < shape[1]]
-
-    return neighbours
+    if i != 0:
+        edges_list.append((i - 1, j))
+    if i != shape[0] - 1:
+        edges_list.append((i + 1, j))
+    if j != 0:
+        edges_list.append((i, j - 1))
+    if j != shape[1] - 1:
+        edges_list.append((i, j + 1))
+    
+    return tuple(zip(*edges_list))
 
 iterations = 100
 shape = (10, 10)
@@ -38,10 +44,20 @@ for beta in [0.01, 1, 4]:
 
                 q[j, k] = np.exp(odds) / (1 + np.exp(odds)) # calculate probability
 
-        plt.figure() # create new figure
+    plt.figure() # create new figure
 
-        sns.heatmap(q, vmin = 0, vmax = 1) # plot heatmap
+    sns.heatmap(q, vmin = 0, vmax = 1) # plot heatmap
 
-        plt.title(r'$\beta = {}$'.format(beta)) # set title
+    plt.title(r'$\beta = {}$'.format(beta)) # set title
 
-        plt.savefig('beta_{}.png'.format(beta)) # save figure
+    plt.savefig('beta_{}.png'.format(beta)) # save figure
+
+    probabilities = q[0, 9] * q[9, 9] + (1 - q[0, 9]) * (1 - q[9, 9]) # calculate probability of x_top = x_bottom
+
+    print("The probability of x_top = x_bottom for beta = {}: {}".format(beta, probabilities))
+
+    print("The probability of x_top != x_bottom for beta = {}: {}".format(beta, 1 - probabilities))
+
+        # print("The probability of x_top = x_bottom: {}".format(np.sum(q[0, :] == q[-1, :]) / shape[1]))
+
+        # print("The probability of x_top != x_bottom: {}".format(np.sum(q[0, :] != q[-1, :]) / shape[1]))
